@@ -43,7 +43,8 @@ def main() -> None:
         for name in ("ic_launcher.png", "ic_launcher_round.png"):
             render(SVG, res / folder / name, size)
     render(SVG, ROOT / "fdroid" / "metadata" / "com.burton.issues" / "en-US" / "icon.png", 512)
-    print("wrote launcher mipmaps and F-Droid icon.png")
+    render(SVG, ROOT / "brand" / "ic_launcher.png", 512)
+    print("wrote launcher mipmaps, F-Droid icon.png, and brand/ic_launcher.png")
 
 
 if __name__ == "__main__":
