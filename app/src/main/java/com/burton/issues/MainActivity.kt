@@ -12,6 +12,7 @@ import com.burton.issues.data.repository.IssuesRepository
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -40,6 +41,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.burton.issues.report.ShakeToReport
 import com.burton.issues.ui.apps.AppsScreen
 import com.burton.issues.ui.composeissue.ComposeIssueScreen
 import com.burton.issues.ui.home.HomeScreen
@@ -52,14 +54,12 @@ import com.burton.issues.ui.theme.BurtonBlack
 import com.burton.issues.ui.theme.BurtonIssuesTheme
 import com.burton.issues.ui.theme.BurtonIvory
 import com.burton.issues.ui.theme.BurtonMute
-import com.burton.issues.report.ShakeToReport
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val shakeToReport by lazy { ShakeToReport(this) }
-
     @Inject lateinit var repository: IssuesRepository
+    private val shakeToReport by lazy { ShakeToReport(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +77,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
 
     override fun onResume() {
         super.onResume()
@@ -189,7 +188,9 @@ private fun BurtonApp(pendingCompose: Boolean) {
         NavHost(
             navController = navController,
             startDestination = Routes.INBOX,
-            modifier = Modifier.padding(padding),
+            modifier = Modifier
+                .padding(padding)
+                .consumeWindowInsets(padding),
         ) {
             composable(Routes.INBOX) {
                 HomeScreen(

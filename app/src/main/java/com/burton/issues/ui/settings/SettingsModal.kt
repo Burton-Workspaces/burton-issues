@@ -21,6 +21,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,8 +31,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,7 +44,9 @@ import com.burton.issues.ui.components.EmptyStatePanel
 import com.burton.issues.ui.components.FullScreenModal
 import com.burton.issues.ui.theme.BurtonCharcoal
 import com.burton.issues.ui.theme.BurtonDanger
+import com.burton.issues.ui.theme.BurtonGraphite
 import com.burton.issues.ui.theme.BurtonIvory
+import com.burton.issues.ui.theme.BurtonLine
 import com.burton.issues.ui.theme.BurtonMute
 import com.burton.issues.ui.theme.BurtonSand
 import com.burton.issues.ui.theme.BurtonVoid
@@ -116,6 +120,13 @@ fun SettingsModal(
                         else -> "${snapshot.subscribed.size} of ${snapshot.catalog.size}"
                     },
                     onClick = { page = SettingsDestination.TrackedApps },
+                )
+                Spacer(Modifier.height(10.dp))
+                SettingsRow(
+                    title = "Background refresh",
+                    subtitle = "Update Inbox while the app is closed",
+                    checked = snapshot.backgroundRefresh,
+                    onClick = { viewModel.setBackgroundRefresh(!snapshot.backgroundRefresh) },
                 )
                 Spacer(Modifier.height(10.dp))
                 SettingsRow(
@@ -289,6 +300,7 @@ private fun SettingsRow(
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     trailing: String? = null,
+    checked: Boolean? = null,
     destructive: Boolean = false,
 ) {
     Row(
@@ -320,7 +332,19 @@ private fun SettingsRow(
         if (trailing != null) {
             Text(trailing, style = MaterialTheme.typography.bodyLarge, color = BurtonMute)
         }
-        if (onClick != null && !destructive) {
+        if (checked != null) {
+            Switch(
+                checked = checked,
+                onCheckedChange = null,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = BurtonVoid,
+                    checkedTrackColor = BurtonSand,
+                    uncheckedThumbColor = BurtonIvory,
+                    uncheckedTrackColor = BurtonGraphite,
+                    uncheckedBorderColor = BurtonLine,
+                ),
+            )
+        } else if (onClick != null && !destructive) {
             Icon(
                 Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 contentDescription = null,

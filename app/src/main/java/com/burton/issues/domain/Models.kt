@@ -161,6 +161,7 @@ data class IssuesSnapshot(
     val pendingNewIssue: NewIssueRequest? = null,
     val deviceUserCode: String = "",
     val deviceVerificationUri: String = "",
+    val backgroundRefresh: Boolean = false,
 ) {
     val subscribed: List<TrackedApp> get() = catalog.filter { it.subscribed }
 }
