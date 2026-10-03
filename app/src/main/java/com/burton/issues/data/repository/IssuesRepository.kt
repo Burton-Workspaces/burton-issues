@@ -55,11 +55,13 @@ class IssuesRepository @Inject constructor(
         if (started) return
         started = true
         scope.launch {
+            val backendId = prefs.backendId.first()
             val token = prefs.auth.first().accessToken
             if (token.isNotBlank()) {
+                _state.update { it.copy(backendId = backendId) }
                 signIn(token, refreshCatalog = true)
             } else {
-                _state.update { it.copy(tokenPresent = false, scanning = false) }
+                _state.update { it.copy(tokenPresent = false, scanning = false, backendId = backendId) }
             }
         }
     }
@@ -206,7 +208,13 @@ class IssuesRepository @Inject constructor(
         devicePoll?.cancel()
         tokenHolder.token = ""
         prefs.clearToken()
-        _state.value = IssuesSnapshot()
+        val backendId = prefs.backendId.first()
+        _state.value = IssuesSnapshot(backendId = backendId)
+    }
+
+    suspend fun setBackend(id: String) {
+        prefs.setBackendId(id)
+        _state.update { it.copy(backendId = id) }
     }
 
     suspend fun refreshCatalogAndInbox() = lock.withLock {

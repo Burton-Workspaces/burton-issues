@@ -21,6 +21,10 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { repository.setSubscribed(repo, on) }
     }
 
+    fun setBackend(id: String) {
+        viewModelScope.launch { repository.setBackend(id) }
+    }
+
     fun signOut() {
         viewModelScope.launch { repository.signOut() }
     }

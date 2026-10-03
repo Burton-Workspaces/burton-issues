@@ -17,6 +17,8 @@ import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,9 +45,19 @@ import com.burton.issues.ui.theme.BurtonVoid
 
 enum class SettingsDestination {
     Root,
+    Backend,
     TrackedApps,
     About,
 }
+
+private data class BackendChoice(val id: String, val name: String)
+
+private val backendChoices = listOf(
+    BackendChoice("github", "GitHub"),
+)
+
+private fun backendName(id: String): String =
+    backendChoices.firstOrNull { it.id == id }?.name ?: "GitHub"
 
 @Composable
 fun SettingsModal(
@@ -61,6 +73,7 @@ fun SettingsModal(
         onDismiss = { if (page == SettingsDestination.Root) onDismiss() else page = SettingsDestination.Root },
         title = when (page) {
             SettingsDestination.Root -> "Settings"
+            SettingsDestination.Backend -> "Backend"
             SettingsDestination.TrackedApps -> "Tracked apps"
             SettingsDestination.About -> "About"
         },
@@ -86,7 +99,8 @@ fun SettingsModal(
                 Spacer(Modifier.height(10.dp))
                 SettingsRow(
                     title = "Backend",
-                    subtitle = "GitHub issues. Other trackers can plug in later.",
+                    subtitle = backendName(snapshot.backendId),
+                    onClick = { page = SettingsDestination.Backend },
                 )
                 Spacer(Modifier.height(10.dp))
                 SettingsRow(
@@ -115,6 +129,17 @@ fun SettingsModal(
                         onDismiss()
                     },
                 )
+            }
+            SettingsDestination.Backend -> {
+                Spacer(Modifier.height(12.dp))
+                backendChoices.forEach { choice ->
+                    BackendChoiceRow(
+                        name = choice.name,
+                        selected = snapshot.backendId == choice.id,
+                        onClick = { viewModel.setBackend(choice.id) },
+                    )
+                    Spacer(Modifier.height(10.dp))
+                }
             }
             SettingsDestination.TrackedApps -> {
                 Spacer(Modifier.height(12.dp))
@@ -169,6 +194,37 @@ fun SettingsModal(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun BackendChoiceRow(
+    name: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(BurtonCharcoal, RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = null,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = BurtonSand,
+                unselectedColor = BurtonMute,
+            ),
+        )
+        Text(
+            name,
+            style = MaterialTheme.typography.titleMedium,
+            color = BurtonIvory,
+            modifier = Modifier.weight(1f).padding(end = 8.dp),
+        )
     }
 }
 

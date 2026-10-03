@@ -43,6 +43,11 @@ class LocalPrefs @Inject constructor(
         prefs[BACKEND].orEmpty().ifBlank { "github" }
     }
 
+    suspend fun setBackendId(id: String) {
+        val trimmed = id.trim().ifBlank { "github" }
+        store.edit { prefs -> prefs[BACKEND] = trimmed }
+    }
+
     suspend fun setAuth(value: GitHubAuth) {
         store.edit { prefs ->
             val access = value.accessToken.trim()
