@@ -13,6 +13,14 @@ class SettingsViewModel @Inject constructor(
 ) : ViewModel() {
     val state = repository.state
 
+    fun refresh() {
+        viewModelScope.launch { repository.refreshCatalogAndInbox() }
+    }
+
+    fun setSubscribed(repo: String, on: Boolean) {
+        viewModelScope.launch { repository.setSubscribed(repo, on) }
+    }
+
     fun signOut() {
         viewModelScope.launch { repository.signOut() }
     }

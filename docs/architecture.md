@@ -9,7 +9,7 @@ data/
   backend    IssueTracker (host-agnostic)
   github     GitHubApi, GitHubTracker, OAuth (device + PKCE), access token
   parse      TinyJson, GitHubCodec, GradleIds / Android catalog
-  deeplink   burtonissues://new and CREATE_ISSUE extras
+  deeplink   burtonissues://new, CREATE_ISSUE, ACTION_SEND
   repository IssuesRepository, LocalPrefs (DataStore), InstalledApps
 di/          OkHttp, Coil ImageLoader, GitHubTracker binding
 ```
@@ -47,10 +47,10 @@ Inbox search is `repo:A repo:B is:issue is:open`.
 
 ## In-app links
 
-`MainActivity` is `singleTask`. `burtonissues://new` and `https://burton-workspaces.github.io/burton-issues/new` queue a `NewIssueRequest`. After sign-in, Compose opens with the matching catalog app selected. Action `com.burton.issues.action.CREATE_ISSUE` takes the same extras.
+`MainActivity` is `singleTask`. `burtonissues://new`, `https://burton-workspaces.github.io/burton-issues/new`, `ACTION_SEND`, and `com.burton.issues.action.CREATE_ISSUE` queue a `NewIssueRequest`. After sign-in, Compose opens with one app selected in the dropdown (from the link, extras, or the calling package).
 
 ## UI shell
 
-`MainActivity` hosts a `NavHost`. **Inbox**, **Apps**, and **Search** are bottom tabs. Issue list, issue, and compose are stacked routes and hide the tab bar. Settings is a full-screen modal. Sign-in is a gate when no token is stored.
+`MainActivity` hosts a `NavHost`. **Inbox**, **Apps**, and **Search** are bottom tabs. Apps rows open that app’s issue list. Issue list, issue, and compose are stacked routes and hide the tab bar. Settings is a full-screen modal (tracked apps, about, account, sign out). Sign-in is a gate when no token is stored.
 
 Theme tokens match Burton Sonos: black surfaces, ivory text, sand accent, danger `#C45C4A`. Empty lists use the Burton empty-state card (`EmptyStatePanel`).

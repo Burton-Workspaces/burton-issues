@@ -31,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.burton.issues.ui.components.EmptyStatePanel
 import com.burton.issues.ui.components.IssueRow
 import com.burton.issues.ui.components.RowsSkeleton
+import com.burton.issues.ui.settings.SettingsDestination
 import com.burton.issues.ui.settings.SettingsModal
 import com.burton.issues.ui.theme.BurtonIvory
 import com.burton.issues.ui.theme.BurtonMute
@@ -39,11 +40,10 @@ import com.burton.issues.ui.theme.BurtonMute
 fun HomeScreen(
     onOpenIssue: (String, Int) -> Unit,
     onCompose: (String) -> Unit,
-    onChooseApps: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val snapshot by viewModel.state.collectAsStateWithLifecycle()
-    var showSettings by remember { mutableStateOf(false) }
+    var settingsStart by remember { mutableStateOf<SettingsDestination?>(null) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -62,7 +62,7 @@ fun HomeScreen(
             IconButton(onClick = { onCompose("") }) {
                 Icon(Icons.Rounded.Add, contentDescription = "New issue", tint = BurtonIvory)
             }
-            IconButton(onClick = { showSettings = true }) {
+            IconButton(onClick = { settingsStart = SettingsDestination.Root }) {
                 Icon(Icons.Rounded.Settings, contentDescription = "Settings", tint = BurtonIvory)
             }
         }
@@ -85,7 +85,7 @@ fun HomeScreen(
                 EmptyStatePanel(
                     title = "Nothing subscribed yet",
                     action = "Choose apps",
-                    onAction = onChooseApps,
+                    onAction = { settingsStart = SettingsDestination.TrackedApps },
                 )
             }
             snapshot.inbox.isEmpty() && !snapshot.scanning -> {
@@ -111,7 +111,10 @@ fun HomeScreen(
             }
         }
     }
-    if (showSettings) {
-        SettingsModal(onDismiss = { showSettings = false })
+    settingsStart?.let { startAt ->
+        SettingsModal(
+            startAt = startAt,
+            onDismiss = { settingsStart = null },
+        )
     }
 }

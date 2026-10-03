@@ -15,9 +15,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,7 +36,6 @@ import com.burton.issues.ui.theme.BurtonCharcoal
 import com.burton.issues.ui.theme.BurtonIvory
 import com.burton.issues.ui.theme.BurtonMute
 import com.burton.issues.ui.theme.BurtonSand
-import com.burton.issues.ui.theme.BurtonVoid
 
 @Composable
 fun AppsScreen(
@@ -65,7 +63,7 @@ fun AppsScreen(
             }
         }
         Text(
-            text = "Public Android apps in Burton-Workspaces. Select which to track.",
+            text = "Tap an app to open its issues.",
             style = MaterialTheme.typography.bodyMedium,
             color = BurtonMute,
         )
@@ -87,7 +85,6 @@ fun AppsScreen(
                     items(snapshot.catalog, key = { it.repo }) { app ->
                         AppRow(
                             app = app,
-                            onToggle = { viewModel.setSubscribed(app.repo, !app.subscribed) },
                             onOpen = { onOpenApp(app.repo) },
                         )
                     }
@@ -100,7 +97,6 @@ fun AppsScreen(
 @Composable
 private fun AppRow(
     app: TrackedApp,
-    onToggle: () -> Unit,
     onOpen: () -> Unit,
 ) {
     Row(
@@ -108,18 +104,9 @@ private fun AppRow(
             .fillMaxWidth()
             .background(BurtonCharcoal, RoundedCornerShape(18.dp))
             .clickable(onClick = onOpen)
-            .padding(horizontal = 8.dp, vertical = 10.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Checkbox(
-            checked = app.subscribed,
-            onCheckedChange = { onToggle() },
-            colors = CheckboxDefaults.colors(
-                checkedColor = BurtonSand,
-                uncheckedColor = BurtonMute,
-                checkmarkColor = BurtonVoid,
-            ),
-        )
         Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
             Text(
                 app.name,
@@ -132,7 +119,6 @@ private fun AppRow(
             val bits = buildList {
                 add(app.repo)
                 if (app.installed) add("Installed")
-                if (app.applicationId.isNotBlank()) add(app.applicationId)
             }
             Text(
                 bits.joinToString(" · "),
@@ -142,5 +128,15 @@ private fun AppRow(
                 overflow = TextOverflow.Ellipsis,
             )
         }
+        Text(
+            "Issues",
+            style = MaterialTheme.typography.labelLarge,
+            color = BurtonSand,
+        )
+        Icon(
+            Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+            contentDescription = null,
+            tint = BurtonMute,
+        )
     }
 }

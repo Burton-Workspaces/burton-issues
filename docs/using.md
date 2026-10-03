@@ -27,13 +27,13 @@ Shown when no token is stored. **Connect with GitHub** starts GitHub device logi
 
 ### Inbox
 
-Open issues across the apps you subscribe to. Tap a row to open it. The plus control files a new issue. Settings (gear) holds the account, backend, sign out, and the app version.
+Open issues across the apps you subscribe to. Tap a row to open it. The plus control files a new issue (choose the app from a dropdown). Settings (gear) holds the account, which apps to track, about, backend, and sign out.
 
-If nothing is subscribed, the empty-state card is **Nothing subscribed yet** with **Choose apps**. If subscribed apps have no open issues, the card is **Everything is up to date**.
+If nothing is subscribed, the empty-state card is **Nothing subscribed yet** with **Choose apps** (Settings → Tracked apps). If subscribed apps have no open issues, the card is **Everything is up to date**.
 
 ### Apps
 
-Public Android repositories under [Burton-Workspaces](https://github.com/Burton-Workspaces). The list is refreshed from GitHub (Kotlin/Java Android apps). Check the apps you want in Inbox. Installed packages on the phone are marked. Tap a row for that app’s issue list.
+Public Android repositories under [Burton-Workspaces](https://github.com/Burton-Workspaces). The list is refreshed from GitHub (Kotlin/Java Android apps). Tap a row to open that app’s issue list. Choose which apps appear in Inbox from Settings → **Tracked apps**. Installed packages on the phone are marked.
 
 ### Issue list
 
@@ -49,12 +49,13 @@ GitHub issue search over subscribed repos. Tap a hit to open it.
 
 ### New issue from another app
 
-Other Android apps can open a compose screen for a particular installed app:
+Other Android apps can open New issue with that app already selected. The app dropdown is a single choice; a link or intent fills it in when the package, repo, or app name matches the catalog. If the link has no target, Burton Issues uses the calling app’s package when that package is in the catalog.
 
 ```
 burtonissues://new?package=com.burton.pod
 burtonissues://new?repo=Burton-Workspaces/burton-pod&title=Crash
 https://burton-workspaces.github.io/burton-issues/new?package=com.burton.pod
+burtonissues://new
 ```
 
 Or an explicit intent:
@@ -66,7 +67,11 @@ Intent("com.burton.issues.action.CREATE_ISSUE")
   .putExtra("body", "…")
 ```
 
-Query keys: `package`, `repo`, `app`, `title`, `body`.
+Share into the app (`ACTION_SEND`, `text/plain`) using `EXTRA_SUBJECT` as the title and `EXTRA_TEXT` as the body. Query keys: `package`, `applicationId`, `repo`, `app`, `title`, `body`.
+
+### Settings
+
+**Tracked apps** is the checkbox list for Inbox. **About** is the app name, version, and source.
 
 ## Permissions
 

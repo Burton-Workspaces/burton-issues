@@ -16,8 +16,4 @@ class AppsViewModel @Inject constructor(
     fun refresh() {
         viewModelScope.launch { repository.refreshCatalogAndInbox() }
     }
-
-    fun setSubscribed(repo: String, on: Boolean) {
-        viewModelScope.launch { repository.setSubscribed(repo, on) }
-    }
 }

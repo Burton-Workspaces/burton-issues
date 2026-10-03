@@ -15,6 +15,8 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -24,12 +26,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.burton.issues.domain.TrackedApp
 import com.burton.issues.ui.theme.BurtonBlack
 import com.burton.issues.ui.theme.BurtonCharcoal
 import com.burton.issues.ui.theme.BurtonIvory
@@ -64,21 +70,12 @@ fun ComposeIssueScreen(
         Spacer(Modifier.height(16.dp))
         Text("APP", style = MaterialTheme.typography.labelSmall, color = BurtonMute)
         Spacer(Modifier.height(8.dp))
-        ui.apps.ifEmpty { emptyList() }.forEach { app ->
-            val selected = app.repo == ui.repo
-            Text(
-                app.name,
-                color = if (selected) BurtonSand else BurtonIvory,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(BurtonCharcoal, RoundedCornerShape(14.dp))
-                    .clickable { viewModel.setRepo(app.repo) }
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .padding(bottom = 8.dp),
-            )
-            Spacer(Modifier.height(8.dp))
-        }
+        AppDropdown(
+            apps = ui.apps,
+            selectedRepo = ui.repo,
+            onSelect = viewModel::setRepo,
+        )
+        Spacer(Modifier.height(12.dp))
         Field("Title", ui.title, viewModel::onTitle)
         Spacer(Modifier.height(12.dp))
         Field("Body", ui.body, viewModel::onBody, singleLine = false)
@@ -97,6 +94,58 @@ fun ComposeIssueScreen(
             Text(if (ui.sending) "Creating…" else "Create issue")
         }
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun AppDropdown(
+    apps: List<TrackedApp>,
+    selectedRepo: String,
+    onSelect: (String) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val selected = apps.firstOrNull { it.repo == selectedRepo }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(BurtonCharcoal, RoundedCornerShape(14.dp))
+                .clickable { expanded = !expanded }
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = selected?.name ?: if (apps.isEmpty()) "Loading apps…" else "Choose an app",
+                color = if (selected != null) BurtonIvory else BurtonMute,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f),
+            )
+            Icon(
+                imageVector = if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                contentDescription = if (expanded) "Hide apps" else "Show apps",
+                tint = BurtonMute,
+            )
+        }
+        if (expanded) {
+            Spacer(Modifier.height(8.dp))
+            apps.forEach { app ->
+                val selectedItem = app.repo == selectedRepo
+                Text(
+                    text = app.name,
+                    color = if (selectedItem) BurtonSand else BurtonIvory,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
+                        .background(BurtonCharcoal, RoundedCornerShape(14.dp))
+                        .clickable {
+                            onSelect(app.repo)
+                            expanded = false
+                        }
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                )
+            }
+        }
     }
 }
 

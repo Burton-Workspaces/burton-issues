@@ -82,7 +82,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIncoming(intent: Intent?) {
-        val uri = intent?.data
+        if (intent == null) return
+        val uri = intent.data
         if (GitHubOAuth.isCallback(uri?.scheme, uri?.host, uri?.path)) {
             val error = uri?.getQueryParameter("error")
             val description = uri?.getQueryParameter("error_description").orEmpty()
@@ -101,8 +102,19 @@ class MainActivity : ComponentActivity() {
             }
             return
         }
-        val request = NewIssueIntents.fromIntent(intent) ?: return
+        val request = NewIssueIntents.fromIntent(intent, callerPackage(intent)) ?: return
         repository.queueNewIssue(request)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun callerPackage(intent: Intent): String {
+        val extraReferrer = intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_REFERRER)
+        val candidates = listOf(
+            callingPackage.orEmpty(),
+            NewIssueIntents.packageFromReferrer(referrer),
+            NewIssueIntents.packageFromReferrer(extraReferrer),
+        )
+        return candidates.firstOrNull { it.isNotBlank() && it != packageName }.orEmpty()
     }
 }
 
@@ -117,8 +129,10 @@ private fun BurtonApp(pendingCompose: Boolean) {
         route?.startsWith("issues") == true ||
         route?.startsWith("compose") == true
     LaunchedEffect(pendingCompose) {
-        if (pendingCompose) {
-            navController.navigate(Routes.compose())
+        if (pendingCompose && navController.currentDestination?.route?.startsWith("compose") != true) {
+            navController.navigate(Routes.compose()) {
+                launchSingleTop = true
+            }
         }
     }
     Scaffold(
@@ -167,7 +181,6 @@ private fun BurtonApp(pendingCompose: Boolean) {
                 HomeScreen(
                     onOpenIssue = { repo, number -> navController.navigate(Routes.issue(repo, number)) },
                     onCompose = { repo -> navController.navigate(Routes.compose(repo)) },
-                    onChooseApps = { navController.goTab(Routes.APPS) },
                 )
             }
             composable(Routes.APPS) {

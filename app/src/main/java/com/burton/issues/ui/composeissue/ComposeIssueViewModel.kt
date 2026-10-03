@@ -29,31 +29,47 @@ class ComposeIssueViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: IssuesRepository,
 ) : ViewModel() {
-    private val initialRepo = Routes.decode(savedStateHandle.get<String>("repo")).ifBlank {
-        repository.state.value.pendingNewIssue?.let { repository.resolveApp(it)?.repo }.orEmpty()
-    }
+    private val initialRepo = Routes.decode(savedStateHandle.get<String>("repo"))
 
     private val _ui = MutableStateFlow(
         ComposeUi(
             repo = initialRepo,
             apps = repository.state.value.catalog,
-            title = repository.state.value.pendingNewIssue?.title.orEmpty(),
-            body = repository.state.value.pendingNewIssue?.body.orEmpty(),
         ),
     )
     val ui = _ui.asStateFlow()
 
     init {
-        val pending = repository.consumeNewIssue()
-        if (pending != null) {
-            val app = repository.resolveApp(pending)
-            _ui.update {
-                it.copy(
-                    repo = it.repo.ifBlank { app?.repo.orEmpty() },
-                    title = it.title.ifBlank { pending.title },
-                    body = it.body.ifBlank { pending.body },
-                    apps = repository.state.value.catalog,
-                )
+        viewModelScope.launch {
+            repository.state.collect { snap ->
+                val pending = snap.pendingNewIssue
+                val resolved = pending?.let { request -> snap.catalog.firstOrNull { request.matches(it) } }
+                val ready = pending != null &&
+                    (resolved != null || snap.catalog.isNotEmpty() || !pending.hasTarget)
+                if (ready) {
+                    repository.consumeNewIssue()
+                }
+                _ui.update { current ->
+                    current.copy(
+                        apps = snap.catalog,
+                        repo = when {
+                            resolved != null -> resolved.repo
+                            current.repo.isNotBlank() -> current.repo
+                            initialRepo.isNotBlank() -> initialRepo
+                            else -> pending?.repo.orEmpty()
+                        },
+                        title = when {
+                            pending == null -> current.title
+                            pending.title.isNotBlank() -> pending.title
+                            else -> current.title
+                        },
+                        body = when {
+                            pending == null -> current.body
+                            pending.body.isNotBlank() -> pending.body
+                            else -> current.body
+                        },
+                    )
+                }
             }
         }
     }

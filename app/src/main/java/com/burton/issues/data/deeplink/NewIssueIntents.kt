@@ -25,29 +25,49 @@ object NewIssueIntents {
         return isNewIssue(uri.scheme, uri.host, uri.path)
     }
 
-    fun fromIntent(intent: Intent?): NewIssueRequest? {
+    fun packageFromReferrer(scheme: String?, host: String?): String {
+        if (scheme == "android-app" && !host.isNullOrBlank()) return host
+        return ""
+    }
+
+    fun packageFromReferrer(uri: Uri?): String {
+        if (uri == null) return ""
+        return packageFromReferrer(uri.scheme, uri.host)
+    }
+
+    fun fromIntent(intent: Intent?, referringPackage: String = ""): NewIssueRequest? {
         if (intent == null) return null
         val uri = intent.data
-        if (isNewIssue(uri) && uri != null) return fromUri(uri)
-        if (intent.action == ACTION_CREATE) {
-            return NewIssueRequest(
-                packageName = extra(intent, "package"),
-                repo = extra(intent, "repo"),
-                app = extra(intent, "app"),
-                title = extra(intent, "title"),
-                body = extra(intent, "body").ifBlank { extra(intent, Intent.EXTRA_TEXT) },
-            )
-        }
-        return null
+        val request = when {
+            isNewIssue(uri) && uri != null -> fromUri(uri)
+            intent.action == ACTION_CREATE || intent.action == Intent.ACTION_SEND -> fromExtras(intent)
+            else -> null
+        } ?: return null
+        return withCaller(request, referringPackage)
     }
 
     fun fromUri(uri: Uri): NewIssueRequest = NewIssueRequest(
-        packageName = uri.getQueryParameter("package").orEmpty(),
-        repo = uri.getQueryParameter("repo").orEmpty(),
-        app = uri.getQueryParameter("app").orEmpty()
+        packageName = uri.getQueryParameter("package").orEmpty()
             .ifBlank { uri.getQueryParameter("applicationId").orEmpty() },
+        repo = uri.getQueryParameter("repo").orEmpty(),
+        app = uri.getQueryParameter("app").orEmpty(),
         title = uri.getQueryParameter("title").orEmpty(),
         body = uri.getQueryParameter("body").orEmpty(),
+    )
+
+    fun withCaller(request: NewIssueRequest, packageName: String): NewIssueRequest {
+        if (request.hasTarget || packageName.isBlank()) return request
+        return request.copy(packageName = packageName)
+    }
+
+    private fun fromExtras(intent: Intent): NewIssueRequest = NewIssueRequest(
+        packageName = extra(intent, "package")
+            .ifBlank { extra(intent, "applicationId") }
+            .ifBlank { extra(intent, Intent.EXTRA_PACKAGE_NAME) },
+        repo = extra(intent, "repo"),
+        app = extra(intent, "app"),
+        title = extra(intent, "title").ifBlank { extra(intent, Intent.EXTRA_SUBJECT) },
+        body = extra(intent, "body").ifBlank { extra(intent, Intent.EXTRA_TEXT) },
     )
 
     private fun extra(intent: Intent, key: String): String =

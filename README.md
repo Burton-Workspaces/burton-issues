@@ -7,11 +7,11 @@ Signed APKs are published on [GitHub Releases](https://github.com/Burton-Workspa
 ## What it does
 
 - **Inbox** — open issues across the apps you subscribe to
-- **Apps** — public Android repos in Burton-Workspaces; select which to track
+- **Apps** — public Android repos in Burton-Workspaces; tap a row for that app’s issues
 - **Issue** — body, comments, labels, assignees, milestone, close / reopen, edit
-- **New issue** — from the app, or from another Burton app via an in-app link
+- **New issue** — pick one app from a dropdown; other Burton apps can open this screen with themselves selected
 - **Search** — GitHub issue search over subscribed repos
-- **Settings** — account, GitHub backend, sign out, app version
+- **Settings** — account, which apps to track, about, GitHub backend, sign out
 
 The token stays on the phone (DataStore). The app talks to GitHub over HTTPS; there is no Burton cloud account. Other issue-tracking backends can plug in behind the same `IssueTracker` interface; GitHub is the first.
 
