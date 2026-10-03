@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/Burton-Workspaces/burton-issues/compare/v1.1.0...v1.2.0) (2026-10-03)
+
+
+### Features
+
+* file issues from a per-app dropdown and track apps in Settings ([4fb5dbb](https://github.com/Burton-Workspaces/burton-issues/commit/4fb5dbb67954ef0128d9013aeb3b326fb2a14524))
+
 ## [1.1.0](https://github.com/Burton-Workspaces/burton-issues/compare/v1.0.0...v1.1.0) (2026-10-03)
 
 
