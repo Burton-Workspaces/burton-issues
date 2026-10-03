@@ -1,0 +1,5 @@
+-keepattributes SourceFile,LineNumberTable
+-keep class com.burton.issues.** { *; }
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn coil.**

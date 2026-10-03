@@ -1,0 +1,4 @@
+# Public GitHub OAuth App client ID for Burton Issues.
+# Create the app at https://github.com/settings/developers (org: Burton-Workspaces)
+# with callback https://burton-workspaces.github.io/burton-issues/oauth/
+# Device flow and PKCE use this ID; never put a client secret here.

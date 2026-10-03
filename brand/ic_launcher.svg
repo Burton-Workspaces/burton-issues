@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Burton Issues">
+  <rect width="64" height="64" fill="#0c0c0c"/>
+  <path fill="#2a2a2a" d="M0 44 16 24 26 34 32 16 40 32 50 20 64 44V64H0Z"/>
+  <g fill="#c8c8c8" transform="translate(16 14) scale(1.35)">
+    <path d="M19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-2h2v2zm0-4H7v-2h2v2zm0-4H7V7h2v2zm8 8h-6v-2h6v2zm0-4h-6v-2h6v2zm0-4h-6V7h6v2z"/>
+  </g>
+</svg>
