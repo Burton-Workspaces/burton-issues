@@ -1,7 +1,9 @@
 package com.burton.issues.ui.settings
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,12 +29,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.burton.issues.BuildConfig
+import com.burton.issues.report.BurtonIssues
 import com.burton.issues.domain.TrackedApp
 import com.burton.issues.ui.components.EmptyStatePanel
 import com.burton.issues.ui.components.FullScreenModal
@@ -67,6 +71,7 @@ fun SettingsModal(
 ) {
     val snapshot by viewModel.state.collectAsStateWithLifecycle()
     val account = snapshot.account
+    val context = LocalContext.current
     var page by remember { mutableStateOf(startAt) }
     LaunchedEffect(startAt) { page = startAt }
     FullScreenModal(
@@ -118,6 +123,7 @@ fun SettingsModal(
                     subtitle = "Burton Issues",
                     trailing = BuildConfig.VERSION_NAME,
                     onClick = { page = SettingsDestination.About },
+                    onLongClick = { BurtonIssues.openNewIssue(context) },
                 )
                 Spacer(Modifier.height(10.dp))
                 SettingsRow(
@@ -176,6 +182,7 @@ fun SettingsModal(
                 SettingsRow(
                     title = "Burton Issues",
                     subtitle = "Version ${BuildConfig.VERSION_NAME}",
+                    onLongClick = { BurtonIssues.openNewIssue(context) },
                 )
                 Spacer(Modifier.height(10.dp))
                 SettingsRow(
@@ -274,11 +281,13 @@ private fun TrackedAppRow(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SettingsRow(
     title: String,
     subtitle: String,
     onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
     trailing: String? = null,
     destructive: Boolean = false,
 ) {
@@ -286,7 +295,16 @@ private fun SettingsRow(
         modifier = Modifier
             .fillMaxWidth()
             .background(BurtonCharcoal, RoundedCornerShape(18.dp))
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .then(
+                when {
+                    onClick != null && onLongClick != null -> {
+                        Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                    }
+                    onClick != null -> Modifier.clickable(onClick = onClick)
+                    onLongClick != null -> Modifier.combinedClickable(onClick = {}, onLongClick = onLongClick)
+                    else -> Modifier
+                },
+            )
             .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

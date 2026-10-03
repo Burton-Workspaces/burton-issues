@@ -25,6 +25,10 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { repository.setBackend(id) }
     }
 
+    fun setBackgroundRefresh(on: Boolean) {
+        viewModelScope.launch { repository.setBackgroundRefresh(on) }
+    }
+
     fun signOut() {
         viewModelScope.launch { repository.signOut() }
     }

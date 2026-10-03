@@ -47,7 +47,7 @@ Inbox search is `repo:A repo:B is:issue is:open`.
 
 ## In-app links
 
-`MainActivity` is `singleTask`. `burtonissues://new`, `https://burton-workspaces.github.io/burton-issues/new`, `ACTION_SEND`, and `com.burton.issues.action.CREATE_ISSUE` queue a `NewIssueRequest`. After sign-in, Compose opens with one app selected in the dropdown (from the link, extras, or the calling package).
+`MainActivity` is `singleTask`. `burtonissues://new`, `https://burton-workspaces.github.io/burton-issues/new`, `ACTION_SEND`, and `com.burton.issues.action.CREATE_ISSUE` queue a `NewIssueRequest`. After sign-in, Compose opens with one app selected in the dropdown (from the link, extras, or the calling package). Debug application ids (`*.debug`) match the release catalog id. Other Burton apps open this by shaking the phone or long-pressing About.
 
 ## UI shell
 

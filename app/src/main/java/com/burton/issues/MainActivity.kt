@@ -52,10 +52,13 @@ import com.burton.issues.ui.theme.BurtonBlack
 import com.burton.issues.ui.theme.BurtonIssuesTheme
 import com.burton.issues.ui.theme.BurtonIvory
 import com.burton.issues.ui.theme.BurtonMute
+import com.burton.issues.report.ShakeToReport
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val shakeToReport by lazy { ShakeToReport(this) }
+
     @Inject lateinit var repository: IssuesRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,6 +76,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        shakeToReport.start()
+    }
+
+    override fun onPause() {
+        shakeToReport.stop()
+        super.onPause()
     }
 
     override fun onNewIntent(intent: Intent) {

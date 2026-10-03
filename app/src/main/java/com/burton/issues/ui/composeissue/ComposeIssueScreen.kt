@@ -1,5 +1,6 @@
 package com.burton.issues.ui.composeissue
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -8,8 +9,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
@@ -28,9 +33,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,6 +49,8 @@ import com.burton.issues.ui.theme.BurtonIvory
 import com.burton.issues.ui.theme.BurtonMute
 import com.burton.issues.ui.theme.BurtonSand
 import com.burton.issues.ui.theme.BurtonVoid
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun ComposeIssueScreen(
@@ -58,8 +67,8 @@ fun ComposeIssueScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(BurtonBlack)
-            .padding(horizontal = 20.dp)
-            .verticalScroll(rememberScrollState()),
+            .imePadding()
+            .padding(horizontal = 20.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             IconButton(onClick = onBack) {
@@ -78,7 +87,13 @@ fun ComposeIssueScreen(
         Spacer(Modifier.height(12.dp))
         Field("Title", ui.title, viewModel::onTitle)
         Spacer(Modifier.height(12.dp))
-        Field("Body", ui.body, viewModel::onBody, singleLine = false)
+        Field(
+            label = "Detail",
+            value = ui.body,
+            onChange = viewModel::onBody,
+            singleLine = false,
+            modifier = Modifier.weight(1f),
+        )
         if (ui.error != null) {
             Spacer(Modifier.height(12.dp))
             Text(ui.error ?: "", color = BurtonIvory)
@@ -128,32 +143,56 @@ private fun AppDropdown(
         }
         if (expanded) {
             Spacer(Modifier.height(8.dp))
-            apps.forEach { app ->
-                val selectedItem = app.repo == selectedRepo
-                Text(
-                    text = app.name,
-                    color = if (selectedItem) BurtonSand else BurtonIvory,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)
-                        .background(BurtonCharcoal, RoundedCornerShape(14.dp))
-                        .clickable {
-                            onSelect(app.repo)
-                            expanded = false
-                        }
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 240.dp)
+                    .verticalScroll(rememberScrollState()),
+            ) {
+                apps.forEach { app ->
+                    val selectedItem = app.repo == selectedRepo
+                    Text(
+                        text = app.name,
+                        color = if (selectedItem) BurtonSand else BurtonIvory,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                            .background(BurtonCharcoal, RoundedCornerShape(14.dp))
+                            .clickable {
+                                onSelect(app.repo)
+                                expanded = false
+                            }
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                    )
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun Field(label: String, value: String, onChange: (String) -> Unit, singleLine: Boolean = true) {
+private fun Field(
+    label: String,
+    value: String,
+    onChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    singleLine: Boolean = true,
+) {
+    val bringIntoView = remember { BringIntoViewRequester() }
+    val scope = rememberCoroutineScope()
+    fun reveal() {
+        scope.launch {
+            delay(280)
+            bringIntoView.bringIntoView()
+        }
+    }
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
+            .bringIntoViewRequester(bringIntoView)
+            .onFocusEvent { if (it.isFocused) reveal() }
             .background(BurtonCharcoal, RoundedCornerShape(18.dp))
             .padding(16.dp),
     ) {
@@ -165,11 +204,9 @@ private fun Field(label: String, value: String, onChange: (String) -> Unit, sing
             singleLine = singleLine,
             textStyle = MaterialTheme.typography.bodyLarge.copy(color = BurtonIvory),
             cursorBrush = SolidColor(BurtonIvory),
-            modifier = Modifier.fillMaxWidth().then(if (singleLine) Modifier else Modifier.height(160.dp)),
-            decorationBox = { inner ->
-                if (value.isBlank()) Text(label, color = BurtonMute, style = MaterialTheme.typography.bodyLarge)
-                inner()
-            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(if (singleLine) Modifier else Modifier.weight(1f)),
         )
     }
 }

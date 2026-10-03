@@ -24,6 +24,15 @@ class NewIssueRequestTest {
     }
 
     @Test
+    fun matchesDebugPackageAgainstReleaseCatalogId() {
+        assertTrue(NewIssueRequest(packageName = "com.burton.pod.debug").matches(pod))
+        assertTrue(NewIssueRequest(app = "com.burton.pod.debug").matches(pod))
+        val debugCatalog = pod.copy(applicationId = "com.burton.pod.debug")
+        assertTrue(NewIssueRequest(packageName = "com.burton.pod").matches(debugCatalog))
+        assertTrue(NewIssueRequest(packageName = "com.burton.pod.debug").matches(debugCatalog))
+    }
+
+    @Test
     fun newIssueCallbackMatchesCustomSchemeAndPagesHop() {
         assertTrue(NewIssueIntents.isNewIssue("burtonissues", "new", null))
         assertTrue(NewIssueIntents.isNewIssue("https", "burton-workspaces.github.io", "/burton-issues/new"))

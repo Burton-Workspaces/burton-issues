@@ -3,6 +3,7 @@ package com.burton.issues.data.repository
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -43,9 +44,17 @@ class LocalPrefs @Inject constructor(
         prefs[BACKEND].orEmpty().ifBlank { "github" }
     }
 
+    val backgroundRefresh: Flow<Boolean> = store.data.map { prefs ->
+        prefs[BACKGROUND_REFRESH] ?: false
+    }
+
     suspend fun setBackendId(id: String) {
         val trimmed = id.trim().ifBlank { "github" }
         store.edit { prefs -> prefs[BACKEND] = trimmed }
+    }
+
+    suspend fun setBackgroundRefresh(on: Boolean) {
+        store.edit { prefs -> prefs[BACKGROUND_REFRESH] = on }
     }
 
     suspend fun setAuth(value: GitHubAuth) {
@@ -85,5 +94,6 @@ class LocalPrefs @Inject constructor(
         val OAUTH_VERIFIER = stringPreferencesKey("oauth_verifier")
         val SUBSCRIBED = stringPreferencesKey("subscribed_repos")
         val BACKEND = stringPreferencesKey("backend_id")
+        val BACKGROUND_REFRESH = booleanPreferencesKey("background_refresh")
     }
 }

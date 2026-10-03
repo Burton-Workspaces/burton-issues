@@ -67,11 +67,13 @@ Intent("com.burton.issues.action.CREATE_ISSUE")
   .putExtra("body", "…")
 ```
 
-Share into the app (`ACTION_SEND`, `text/plain`) using `EXTRA_SUBJECT` as the title and `EXTRA_TEXT` as the body. Query keys: `package`, `applicationId`, `repo`, `app`, `title`, `body`.
+Share into the app (`ACTION_SEND`, `text/plain`) using `EXTRA_SUBJECT` as the title and `EXTRA_TEXT` as the body. Query keys: `package`, `applicationId`, `repo`, `app`, `title`, `body`. Debug application ids (`*.debug`) match the release catalog id.
+
+Every Burton Android app files this way: **shake the phone**, or **long-press About** in Settings. That opens New issue with the calling app already selected. Nothing is posted until you submit; Back cancels.
 
 ### Settings
 
-**Tracked apps** is the checkbox list for Inbox. **About** is the app name, version, and source.
+**Tracked apps** is the checkbox list for Inbox. **About** is the app name, version, and source. Long-press About (or the version row) files a new issue for Burton Issues. Shake does the same from any screen.
 
 ## Permissions
 

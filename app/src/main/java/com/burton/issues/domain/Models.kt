@@ -128,7 +128,7 @@ data class NewIssueRequest(
         get() = packageName.isNotBlank() || repo.isNotBlank() || app.isNotBlank()
 
     fun matches(tracked: TrackedApp): Boolean {
-        if (packageName.isNotBlank() && tracked.applicationId.equals(packageName, ignoreCase = true)) {
+        if (packageName.isNotBlank() && catalogIdsMatch(packageName, tracked.applicationId)) {
             return true
         }
         if (repo.isNotBlank() && tracked.repo.equals(repo.removePrefix("https://github.com/"), ignoreCase = true)) {
@@ -137,10 +137,16 @@ data class NewIssueRequest(
         if (app.isNotBlank()) {
             val needle = app.trim()
             if (tracked.repo.substringAfterLast('/').equals(needle, ignoreCase = true)) return true
-            if (tracked.applicationId.equals(needle, ignoreCase = true)) return true
+            if (catalogIdsMatch(tracked.applicationId, needle)) return true
             if (tracked.name.equals(needle, ignoreCase = true)) return true
         }
         return false
+    }
+
+    private fun catalogIdsMatch(left: String, right: String): Boolean {
+        val a = left.removeSuffix(".debug")
+        val b = right.removeSuffix(".debug")
+        return a.equals(b, ignoreCase = true)
     }
 }
 

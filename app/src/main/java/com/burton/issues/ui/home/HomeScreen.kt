@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,6 +60,9 @@ fun HomeScreen(
                 color = BurtonIvory,
                 modifier = Modifier.weight(1f),
             )
+            IconButton(onClick = viewModel::refresh, enabled = !snapshot.scanning) {
+                Icon(Icons.Rounded.Refresh, contentDescription = "Refresh inbox", tint = BurtonIvory)
+            }
             IconButton(onClick = { onCompose("") }) {
                 Icon(Icons.Rounded.Add, contentDescription = "New issue", tint = BurtonIvory)
             }

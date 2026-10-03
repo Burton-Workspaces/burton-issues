@@ -56,12 +56,20 @@ class IssuesRepository @Inject constructor(
         started = true
         scope.launch {
             val backendId = prefs.backendId.first()
+            val backgroundRefresh = prefs.backgroundRefresh.first()
             val token = prefs.auth.first().accessToken
             if (token.isNotBlank()) {
-                _state.update { it.copy(backendId = backendId) }
+                _state.update { it.copy(backendId = backendId, backgroundRefresh = backgroundRefresh) }
                 signIn(token, refreshCatalog = true)
             } else {
-                _state.update { it.copy(tokenPresent = false, scanning = false, backendId = backendId) }
+                _state.update {
+                    it.copy(
+                        tokenPresent = false,
+                        scanning = false,
+                        backendId = backendId,
+                        backgroundRefresh = backgroundRefresh,
+                    )
+                }
             }
         }
     }
@@ -209,12 +217,18 @@ class IssuesRepository @Inject constructor(
         tokenHolder.token = ""
         prefs.clearToken()
         val backendId = prefs.backendId.first()
-        _state.value = IssuesSnapshot(backendId = backendId)
+        val backgroundRefresh = prefs.backgroundRefresh.first()
+        _state.value = IssuesSnapshot(backendId = backendId, backgroundRefresh = backgroundRefresh)
     }
 
     suspend fun setBackend(id: String) {
         prefs.setBackendId(id)
         _state.update { it.copy(backendId = id) }
+    }
+
+    suspend fun setBackgroundRefresh(on: Boolean) {
+        prefs.setBackgroundRefresh(on)
+        _state.update { it.copy(backgroundRefresh = on) }
     }
 
     suspend fun refreshCatalogAndInbox() = lock.withLock {
@@ -253,6 +267,19 @@ class IssuesRepository @Inject constructor(
 
     suspend fun refreshInbox() = lock.withLock {
         refreshInboxLocked(_state.value.catalog.filter { it.subscribed }.map { it.repo })
+    }
+
+    suspend fun refreshInboxInBackground() {
+        if (tokenHolder.token.isBlank()) {
+            val token = prefs.auth.first().accessToken
+            if (token.isBlank()) return
+            tokenHolder.token = token
+        }
+        if (_state.value.catalog.isEmpty()) {
+            refreshCatalogAndInbox()
+        } else {
+            refreshInbox()
+        }
     }
 
     private suspend fun refreshInboxLocked(repos: List<String>) {
