@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/Burton-Workspaces/burton-issues/compare/v1.0.0...v1.1.0) (2026-10-03)
+
+
+### Features
+
+* add GitHub OAuth client ID ([a31dc62](https://github.com/Burton-Workspaces/burton-issues/commit/a31dc623237bce887004173315d91e42418233c3))
+
 ## 1.0.0 (2026-10-03)
 
 
