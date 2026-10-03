@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.0](https://github.com/Burton-Workspaces/burton-issues/compare/v1.2.0...v1.3.0) (2026-10-03)
+
+
+### Features
+
+* add shake-to-report and background Inbox refresh ([7e7ab79](https://github.com/Burton-Workspaces/burton-issues/commit/7e7ab793b746a18ac665b8a8a35260d70fbe88d9))
+* keep form text above the keyboard and toggle background refresh ([bed05fe](https://github.com/Burton-Workspaces/burton-issues/commit/bed05fe4b0594bf1c60c53b84c4dff98e01061a4))
+* turn Settings backend into a selectable host list ([08bc7b1](https://github.com/Burton-Workspaces/burton-issues/commit/08bc7b1158a9d1daf2536290a7ee84c462c5914b))
+
 ## [1.2.0](https://github.com/Burton-Workspaces/burton-issues/compare/v1.1.0...v1.2.0) (2026-10-03)
 
 
